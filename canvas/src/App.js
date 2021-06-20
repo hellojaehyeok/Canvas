@@ -2,30 +2,67 @@ import React, { useEffect, useRef } from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+const radianDeg = (deg) => {
+  return deg * Math.PI / 180;
+}
+
 function App() {
 
   const canvasRef = useRef();
+  const ballCount = 5;
+  const ballColorArr = ["#ffa6a6", "#ffe0a6", "#c2ffa6", "#a6fffe", "#dea6ff"]
 
-  let currentX = 0;
-  const radianDeg = (deg) => {
-    return deg * Math.PI / 180;
-  }
 
   useEffect(() => {
+    
+
+    // 공 배열
+    let ballObjArr = [];
+    // 배열에 각 공 속성 담기
+    for(let i = 0 ; i < ballCount ; i++){
+      const ballObj = {
+        x : Math.round((Math.random() * ( 450 -50) + 50)),
+        y : Math.round((Math.random() * ( 450 -50) + 50)),
+        dx : Math.round((Math.random() * ( 10 - 3) + 3)),
+        dy : Math.round((Math.random() * ( 10 - 3) + 3)),
+        rad : Math.round((Math.random() * ( 50 -20) + 20)),
+        colorIndex : Math.round(Math.random() * 4)
+      } 
+      ballObjArr.push(ballObj);
+    }
+
+    // 공 움직임 
+    const ballMovment = (ctx, ballObj) => {
+      ctx.beginPath();
+      ctx.fillStyle = ballColorArr[ballObj.colorIndex];
+      ctx.arc(ballObj.x, ballObj.y, ballObj.rad, 0, radianDeg(360)); 
+      ctx.fill();
+      ballObj.x += ballObj.dx;
+      ballObj.y += ballObj.dy;
+      
+      if(ballObj.y - ballObj.rad < 0 || ballObj.y + ballObj.rad > 500){
+        ballObj.dy *= -1
+      }
+
+      if(ballObj.x - ballObj.rad < 0 || ballObj.x + ballObj.rad > 500){
+        ballObj.dx *= -1
+      }
+    }
+
+    // 캔버스 렌더링
     const render = () => {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d'); 
-      // 채워진 사각형 그리지
-      // ctx.fillStyle = "salmon"; 
-      // ctx.fillRect(10, 10, 50, 50);
 
-      // 모든 영역 삭제
+      // 캔버스 초기화
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // arc 를 활용하여 원 그르기
-      ctx.beginPath();
-      ctx.arc(currentX, 100, 50, 0, radianDeg(360)); 
-      ctx.stroke();
-      currentX++;
+      
+      // 공 생성
+      for(let i = 0 ; i < ballCount ; i++){
+        ballMovment(ctx, ballObjArr[i]);
+      }
+
+      // 애니메이션
       requestAnimationFrame(render);
     }
     render();
@@ -34,8 +71,7 @@ function App() {
 
   return (
     <div className={"container"}>
-      Canvas Tutorial
-
+      Canvas Tutorial - Ball Animation
       <canvas ref={canvasRef} width="500" height="500  "></canvas>
     </div>
   );
