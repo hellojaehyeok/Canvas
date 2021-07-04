@@ -53,6 +53,8 @@ const MovePoly = (props) => {
         const render = () => {
             window.requestAnimationFrame(render);
             ctx.clearRect(0, 0, stageWidth, stageHeight);
+            // 0.92를 곱하여 영원히 도는것을 방지한다.
+            // 천천히 속도가 줄어든다.
             moveX *= 0.92;
             polygon.animate(ctx, moveX)
         }

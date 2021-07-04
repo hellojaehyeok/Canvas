@@ -18,8 +18,8 @@ export class Polygon{
         const angle = PI2/this.sides;
         
         ctx.translate(this.x, this.y);
-        this.rotate -= moveX*0.008;
         
+        this.rotate -= moveX*0.008;
         ctx.rotate(this.rotate);
 
         for(let i = 0 ; i < this.sides ; i++){
