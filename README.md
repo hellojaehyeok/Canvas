@@ -69,4 +69,26 @@ restore -> save로 저장하였던 properties를 저장한다
 
 ## sin & cos
 sin -> 0 부터 시작하여 1과 -1 사이를 반복한다              
-챈 -> 1부터 시작하여 1과 -1 사이를 반복한다                   
+챈 -> 1부터 시작하여 1과 -1 사이를 반복한다         
+
+### sin, cos를 활용하여 n각형 만들기
+
+    ctx.save();
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+
+    // sides에 원하는 변의 수를 넣는다.
+    const angle = PI2/sides;
+    
+    for(let i = 0 ; i < sides ; i++){
+        // const x = 반지름 * Math.cos(angle * i);
+        const x = radius * Math.cos(angle * i);
+        const y = radius * Math.sin(angle * i);
+        
+        // 처음에는 시작점을 잡고 그 이후로 선을 잇는다
+        i==0?ctx.moveTo(x, y):ctx.lineTo(x, y);
+    }
+
+    ctx.fill();
+    ctx.closePath();
+    ctx.restore();

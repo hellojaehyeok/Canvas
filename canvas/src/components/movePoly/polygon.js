@@ -19,8 +19,8 @@ export class Polygon{
         
         ctx.translate(this.x, this.y);
         
-        this.rotate -= moveX*0.008;
-        ctx.rotate(this.rotate);
+        // this.rotate -= moveX*0.008;
+        // ctx.rotate(this.rotate);
 
         for(let i = 0 ; i < this.sides ; i++){
             const x = this.radius * Math.cos(angle * i);
