@@ -9,28 +9,35 @@ const MovePoly = (props) => {
 
 
     useEffect(() => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        const pixelRatio = window.devicePixelRatio>1?2:1;
-        const stageWidth = document.body.clientWidth;
-        const stageHeight = document.body.clientHeight;
-        let polygon = null;
-        let isDown = false;
-        let moveX = 0;
-        let offsetX = 0;
+        const canvas = canvasRef.current; // canvasRef 가져오기 
+        const ctx = canvas.getContext('2d'); // 드로잉 컨텍스트에 엑세스
+        const pixelRatio = window.devicePixelRatio>1?2:1; // 접속 기기가 레티나 디스플레이인지 체크
+        const stageWidth = document.body.clientWidth; // 화면의 가로값을 가져온다
+        const stageHeight = document.body.clientHeight; // 화면의 세로값을 가져온다.
+        let polygon = null; //  new Polygon이 들어갈 변수
+        let isDown = false; // 마우스 다운 유무
+        let moveX = 0; // 이동한 마우스의 위치
+        let offsetX = 0; // 마우스의 현재 위치 
 
 
         // 리사이즈 이벤트
         const resizeEvent = () => {
-            canvasRef.current.width = stageWidth * pixelRatio;
+            // 레티나 디스플레이에서 흐릿하게 보이지 않기 위하여 pixelRatio를 곱해준다.
+            canvasRef.current.width = stageWidth * pixelRatio; 
             canvasRef.current.height = stageHeight * pixelRatio;
             ctx.scale(pixelRatio, pixelRatio);
-            polygon = new Polygon(stageWidth/2, stageHeight/2, stageHeight/3, 3);
+            polygon = new Polygon(
+                stageWidth/2, 
+                stageHeight + (stageHeight / 4),
+                stageHeight/1.5,
+                15
+            );
         }
         window.addEventListener("resize", resizeEvent);
         resizeEvent();
 
         // 마우스 이벤트
+        // 마수스의 현재 위치와 움직인 위치를 빼주어 속도 및 방향을 계산한다.
         const mouseDown = (e) => {
             isDown = true;
             moveX = 0;
@@ -38,7 +45,7 @@ const MovePoly = (props) => {
         }
         const mouseMove = (e) => {
             if(isDown){
-                moveX = e.clientX - offsetX;
+                moveX = offsetX - e.clientX;
                 offsetX = e.clientX;
             }
         }
