@@ -40,8 +40,9 @@ export class Polygon{
             ctx.rotate(((360 / this.sides * i + 45) * Math.PI / 180));
             ctx.beginPath();
             for(let j = 0 ; j < 4 ; j++){
-                const xInside = 180 * Math.cos(angleInside * j);
-                const yInside = 180 * Math.sin(angleInside * j);
+                // 내부 n각형 크기
+                const xInside = 90 * Math.cos(angleInside * j);
+                const yInside = 90 * Math.sin(angleInside * j);
                 j==0?ctx.moveTo(xInside, yInside):ctx.lineTo(xInside, yInside);
             }
             ctx.fill();
