@@ -181,6 +181,8 @@
     table.querySelectorAll('tr').forEach(function (row, index) {
         // 테이블 헤더는 잡지 못하게 함
         if (index === 0) { return; }
+        
+        // 해당 번째에다가 draggable를 넣는다.
         row.classList.add('draggable');
         row.addEventListener('mousedown', mouseDownHandler);
     });

@@ -4,7 +4,26 @@
 }
 
 .graphWrap{
-    width: 500px;
-    height: 500px;
+    width: 600px;
+    height: 440px;
+    border: 1px solid #000;
+    display: flex;
+    overflow: scroll;
+    overflow-y: hidden;
+    margin: 30px;
+    padding: 30px;
+}
+.graphEl{
+    overflow: hidden;
+    min-width: 16px;
+    height: 100%;
+    margin: 0 8px;
+    border-radius: 8px;
     border: 1px solid salmon;
+}
+.chrStack{
+    width: 100%;
+}
+.chrStackSmall{
+    width: 100%;
 }
