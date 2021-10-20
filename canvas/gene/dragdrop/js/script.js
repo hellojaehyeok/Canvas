@@ -34,6 +34,8 @@
 
     const cloneTable = function () {
         const rect = table.getBoundingClientRect();
+        console.log(window.getComputedStyle(table).width);
+
         const width = parseInt(window.getComputedStyle(table).width);
 
         list = document.createElement('div');
@@ -85,6 +87,7 @@
     };
 
     const mouseMoveHandler = function (e) {
+
         if (!isDraggingStarted) {
             isDraggingStarted = true;
 
@@ -101,6 +104,8 @@
             placeholder.style.height = `${draggingEle.offsetHeight}px`;
         }
 
+
+        console.log(draggingEle.offsetTop);
         // Set position for dragging element
         draggingEle.style.position = 'absolute';
         draggingEle.style.top = `${draggingEle.offsetTop + e.clientY - y}px`;

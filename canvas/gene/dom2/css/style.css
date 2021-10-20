@@ -12,18 +12,40 @@
     overflow-y: hidden;
     margin: 30px;
     padding: 30px;
+    /* position: relative; */
+}
+.graphShadow{
+    min-width: 16px;
+    height: 440px;
+    margin: 0 8px;
+    border-radius: 8px;
+    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgb(252, 252, 252) -3px -3px 6px 1px inset;
 }
 .graphEl{
     overflow: hidden;
     min-width: 16px;
-    height: 100%;
+    height: 440px;
     margin: 0 8px;
     border-radius: 8px;
     border: 1px solid salmon;
+    transform-origin: 0;
 }
 .chrStack{
     width: 100%;
 }
 .chrStackSmall{
     width: 100%;
+}
+
+.test{
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    min-width: 16px;
+    height: 440px;
+    margin: 0 8px;
+    border-radius: 8px;
+    border: 1px solid salmon;
+    transform-origin: 0;
 }

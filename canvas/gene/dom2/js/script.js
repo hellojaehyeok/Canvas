@@ -11,6 +11,8 @@ var graphWrap = document.querySelector(".graphWrap");
 var chartDataArr = {};
 var chrTotalData = {};
 var chrTotalIndex = 0; 
+var clickX = 0;
+var clickY = 0;
 
 // # . 1 엑셀 data 가져오기
 function readExcel() {
@@ -30,8 +32,6 @@ function readExcel() {
 
 // # . 2 data 원하는 형태로 변환
 function parsingData(xlsxData){
-
-
     for(var i = 0 ; i <  xlsxData.length ; i++){
         for(var key in xlsxData[i]){
             if(key == "f" || key == "m" || key == "__EMPTY" || key == "pos" || key == "chr"){continue;}
@@ -59,8 +59,7 @@ function buildGraph(chrTotalData, chrTotalIndex){
         var divEl = document.createElement('div');
         divEl.setAttribute("data-column", key);
         divEl.classList.add("graphEl");
-        graphWrap.appendChild( divEl );
-        
+        graphWrap.appendChild( divEl );   
         
         // 작은 틀 생성
         for(var keySmall in chrTotalData){
@@ -109,13 +108,56 @@ function buildGraph(chrTotalData, chrTotalIndex){
 }
 
 
-// window.addEventListener("click", function(e){
-    
-//     if(e.path[0].classList.contains("chrStackSmall")){
-//         // console.log(e.path[1].dataset.column);
-//         // console.log(e.path[2].dataset.column);
-//         // console.log(chartDataArr);
 
-//         console.log(chartDataArr[e.path[2].dataset.column]);
-//     }
-// });
+var isMouseMove = false;
+var clickColumn = "";
+graphWrap.addEventListener("mousedown", function(e){
+    if(e.path[0].classList.contains("chrStackSmall")){
+        isMouseMove = true;
+        clickColumn = e.path[2].dataset.column;
+
+        var clickEl = document.querySelector("[data-column=" +clickColumn+ "]");
+        clickY = e.clientY - clickEl.offsetTop;
+        clickX = e.clientX - clickEl.offsetLeft;
+    }
+});
+
+graphWrap.addEventListener("mousemove", function(e){
+    if(!isMouseMove){return};
+    var clickEl = document.querySelector("[data-column=" +clickColumn+ "]");
+    clickEl.style.position = "absolute";
+    clickEl.style.top = `${e.clientY - clickY}px`;
+    clickEl.style.left = `${e.clientX - clickX}px`;
+    clickEl.style.pointerEvents = "none";
+
+
+    // 그림자
+    if(!e.path[2].dataset.column){return;}
+
+    var currentEl = document.querySelector("[data-column=" +e.path[2].dataset.column+ "]");
+    var currentShadow = document.querySelector(".graphShadow");
+    if(currentShadow){
+        currentShadow.remove();
+    }
+
+    var shadowGraph = document.createElement('div');
+    shadowGraph.classList.add("graphShadow");
+    clickEl.parentNode.insertBefore(shadowGraph, currentEl)
+
+});
+
+graphWrap.addEventListener("mouseup", function(e){
+    isMouseMove = false;
+    if(!clickColumn){return;}
+    var clickEl = document.querySelector("[data-column=" +clickColumn+ "]");
+    var currentShadow = document.querySelector(".graphShadow");
+    if(!currentShadow){return}
+
+    clickEl.style.position = "unset";
+    clickEl.style.top = 0;
+    clickEl.style.left = 0;
+    clickEl.style.pointerEvents = "all";
+
+    clickEl.parentNode.replaceChild(clickEl, currentShadow);
+});
+
