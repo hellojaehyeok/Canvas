@@ -1,20 +1,7 @@
 
-
-// const percent = 100/272602287;
-// console.log(percent * (
-//     (26107688 - 18185663)+
-//     (26297316 - 26107688)+
-//     (47503017 - 31185327)+
-//     (170085342 - 161052341)+
-//     (217668184 - 170085342)+
-//     (238692928 - 217668184))
-// )
-
-
 // ------------------------------------------------------
 //                         그래프
 // ------------------------------------------------------
-
 var xlsxData = [];
 var graphWrap = document.querySelector(".graphWrap");
 var chartDataArr = {};
@@ -23,6 +10,7 @@ var chrTotalIndex = 0;
 var chrPercent = {};
 var clickX = 0;
 var clickY = 0;
+var isFirst = true;
 
 
 // # . 1 엑셀 data 가져오기
@@ -64,6 +52,16 @@ function parsingData(xlsxData){
 
 // # . 3 그래프 생성
 function buildGraph(){
+    var visualWrap = document.querySelector(".visualWrap");
+    var visualWrapPosition = document.querySelector(".visualWrapPosition");
+    visualWrap.remove();
+    visualWrapPosition.innerHTML = "<div class='visualWrap'><div class='tableWrap' ><div class='tableContent'><table id='table' class='table'></table></div></div><div class='graphContainer'><div class='dotline'></div><div class='graphWrap'></div></div></div>"
+
+    
+    graphWrap = document.querySelector(".graphWrap");
+    for(var key in chrPercent){
+        chrPercent[key] = {}
+    }
 
     function makeParent(className){
         var graphElName = document.createElement('div');
@@ -150,98 +148,82 @@ function buildGraph(){
             divElSmall.appendChild( divElSmallStack );
         }
     }    
-
-
-    // var graphContainer = document.querySelector(".graphContainer");
-
-    // // 작은 틀 생성
-    // for(var keySmall in chrTotalData){
-    //     var divElSmall = document.createElement('div');
-    //     divElSmall.classList.add("chrStack");
-    //     divElSmall.style.height = (100/chrTotalIndex) * chrTotalData[keySmall] + "%";
-    //     graphContainer.appendChild( divElSmall );
-    // }
-
     
+    var graphContainer = document.querySelector(".graphContainer");
+    for(var key in chrTotalData){
+        if(typeof(chrTotalData[key])=="number"){
 
-    // // 작은 틀 생성
-    // var graphContainer = document.querySelector(".graphContainer");
-
-    // var topPercent = 0;
-    // for(var key in chrTotalData){
-    //     if(typeof(chrTotalData[key])!=="number"){continue}
-
-    //     topPercent += (100/chrTotalIndex) * chrTotalData[key]
-
-    //     var dotEl = document.createElement('div');
-    //     dotEl.classList.add("dotline");
-    //     dotEl.style.top =  (topPercent * 4.9) + 0 +"px";
-    //     graphContainer.appendChild( dotEl );
-
-    //     console.log(key);
-    //     console.log((topPercent * 4.9) + 0)
-    //     // console.log(topPercent);
-    // }
+            var chtHeight = document.querySelector("[data-column="+key+"]").getBoundingClientRect().bottom;
+            var dotEl = document.createElement('div');
+            dotEl.classList.add("dotline");
+            dotEl.style.top =  (chtHeight - graphContainer.getBoundingClientRect().top) + "px";
+            graphContainer.appendChild( dotEl );
+        }
+    }
+    var dotline = document.querySelectorAll(".dotline");
+    dotline[dotline.length-1].remove();
 
 
+    addGraphEvent();
     buildTable();
 }
 
+// 드래그&드롭 이벤트 추가
+function addGraphEvent(){
+    // 드래그&드롭 인터랙션
+    var isMouseMove = false;
+    var clickColumn = "";
+    graphWrap.addEventListener("mousedown", function(e){
+        if(e.path[0].classList.contains("chrStackSmall")){
+            isMouseMove = true;
+            clickColumn = e.path[2].dataset.column;
 
-// 드래그&드롭 인터랙션
-var isMouseMove = false;
-var clickColumn = "";
-graphWrap.addEventListener("mousedown", function(e){
-    if(e.path[0].classList.contains("chrStackSmall")){
-        isMouseMove = true;
-        clickColumn = e.path[2].dataset.column;
+            var clickEl = document.querySelector("[data-column=" +clickColumn+ "]");
+            clickY = e.clientY - clickEl.offsetTop;
+            clickX = e.clientX - clickEl.offsetLeft;
+        }
+    });
 
-        var clickEl = document.querySelector("[data-column=" +clickColumn+ "]");
-        clickY = e.clientY - clickEl.offsetTop;
-        clickX = e.clientX - clickEl.offsetLeft;
-    }
-});
-
-graphWrap.addEventListener("mousemove", function(e){
-    if(!isMouseMove){return};
-    var clickEl = document.querySelector("[data-column=" +clickColumn+ "]").parentNode;
-    clickEl.style.position = "absolute";
-    clickEl.style.top = `${e.clientY - clickY}px`;
-    clickEl.style.left = `${e.clientX - clickX}px`;
-    clickEl.style.pointerEvents = "none";
+    graphWrap.addEventListener("mousemove", function(e){
+        if(!isMouseMove){return};
+        var clickEl = document.querySelector("[data-column=" +clickColumn+ "]").parentNode;
+        clickEl.style.position = "absolute";
+        clickEl.style.top = `${e.clientY - clickY}px`;
+        clickEl.style.left = `${e.clientX - clickX}px`;
+        clickEl.style.pointerEvents = "none";
 
 
-    // 그림자
-    if(!e.path[2].dataset.column){return;}
-    var currentEl = document.querySelector("[data-column=" +e.path[2].dataset.column+ "]").parentNode;
-    var currentShadow = document.querySelector(".graphShadow");
-    if(currentShadow){
-        currentShadow.remove();
-    }
+        // 그림자
+        if(!e.path[2].dataset.column){return;}
+        var currentEl = document.querySelector("[data-column=" +e.path[2].dataset.column+ "]").parentNode;
+        var currentShadow = document.querySelector(".graphShadow");
+        if(currentShadow){
+            currentShadow.remove();
+        }
 
-    var shadowGraph = document.createElement('div');
-    shadowGraph.classList.add("graphShadow");
+        var shadowGraph = document.createElement('div');
+        shadowGraph.classList.add("graphShadow");
 
-    clickEl.parentNode.insertBefore(shadowGraph, currentEl)
+        clickEl.parentNode.insertBefore(shadowGraph, currentEl)
 
-});
+    });
 
-graphWrap.addEventListener("mouseup", function(e){
-    isMouseMove = false;
-    if(!clickColumn){return;}
-    var clickEl = document.querySelector("[data-column=" +clickColumn+ "]").parentNode;
-    var currentShadow = document.querySelector(".graphShadow");
-    if(!currentShadow){return}
+    graphWrap.addEventListener("mouseup", function(e){
+        isMouseMove = false;
+        if(!clickColumn){return;}
+        var clickEl = document.querySelector("[data-column=" +clickColumn+ "]").parentNode;
+        var currentShadow = document.querySelector(".graphShadow");
+        if(!currentShadow){return}
 
-    clickEl.style.position = "unset";
-    clickEl.style.top = 0;
-    clickEl.style.left = 0;
-    clickEl.style.pointerEvents = "all";
+        clickEl.style.position = "unset";
+        clickEl.style.top = 0;
+        clickEl.style.left = 0;
+        clickEl.style.pointerEvents = "all";
 
-    clickEl.parentNode.replaceChild(clickEl, currentShadow);
-    sortGraphData();
-});
-
+        clickEl.parentNode.replaceChild(clickEl, currentShadow);
+        sortGraphData();
+    });
+}
 
 // 그래프 정렬
 function sortGraphData(){
@@ -259,8 +241,6 @@ function sortGraphData(){
     chartDataArr = newChrObj;
     buildTable();
 }
-
-
 
 
 
@@ -319,11 +299,76 @@ function buildTable(){
 
 
     tableContent.appendChild(newTable);
+    addTableEvent();
+}
+var tableWrap = document.querySelector('.tableWrap');
+var clickTableColumn = "";
+var hoverTableColumn = "";
 
+// 테이블 정렬
+function sortTableData(){
+    var newChrArr = [];
+    var tbodyChildren = document.querySelector("tbody").children;
+    
+    for(var i = 0 ; i < tbodyChildren.length ; i++){
+        newChrArr.push(tbodyChildren[i].dataset.column.replace("_table", ""));
+    }
+    var newChrObj = {};
+    for(var i = 0 ; i < newChrArr.length ; i++){
+        newChrObj[newChrArr[i]] = chartDataArr[newChrArr[i]];
+    }
+    chartDataArr = newChrObj;
+    buildGraph();
 }
 
-
-
+// 드래그&드롭 이벤트 추가
+function addTableEvent(){
+    var isMouseMove = false;
+    var tableWrap = document.querySelector('.tableWrap');
+    tableWrap.addEventListener("mousedown", function(e){
+        if(!e.path[1].dataset.column){return};
+        isMouseMove = true;
+        clickTableColumn = e.path[1].dataset.column;
+        var clickEl = document.querySelector("[data-column=" + clickTableColumn + "]");
+        clickEl.style.opacity = "0.5";
+        clickEl.style.border = "5px solid #000";
+    })
+    tableWrap.addEventListener("mousemove", function(e){
+        if(!isMouseMove){return;}
+        if(!e.path[1].dataset.column){return};
+    
+    
+        // if(hoverTableColumn!==e.path[1].dataset.column){
+        //     if(hoverTableColumn){
+        //         document.querySelector("[data-column=" + hoverTableColumn + "]").style.borderTop = 0;
+        //     }
+        // }
+        var currentShadow = document.querySelector(".tableShadow");
+        if(currentShadow){
+            currentShadow.remove();
+        }
+    
+        hoverTableColumn = e.path[1].dataset.column;
+        var hoverEl = document.querySelector("[data-column=" + hoverTableColumn + "]");
+    
+        var shadowGraph = document.createElement('div');
+        shadowGraph.classList.add("tableShadow");
+    
+        hoverEl.parentNode.insertBefore(shadowGraph, hoverEl);
+    })
+    tableWrap.addEventListener("mouseup", function(e){
+        if(!isMouseMove){return}
+        isMouseMove = false;
+        var currentShadow = document.querySelector(".tableShadow");
+        if(!currentShadow){return}
+        var clickEl = document.querySelector("[data-column=" + clickTableColumn + "]");
+        clickEl.style.opacity = "1";
+        clickEl.style.border = "0";
+        clickEl.parentNode.replaceChild(clickEl, currentShadow);
+        sortTableData();
+    })
+    
+}
 
 
 
@@ -338,9 +383,22 @@ function downloadGraphImg(e){
 
     html2canvas(graphWrap).then(function(canvas){
         var myImage = canvas.toDataURL();
-        downloadURI(myImage, "저장이미지이름.png") 
+        downloadURI(myImage, "graph.png") 
     });
 }
+function downloadTableImg(e){
+    var tableWrap = document.querySelector(".tableWrap");
+    tableWrap.style.width = "unset";
+    tableWrap.style.height = "unset";
+    tableWrap.style.overflow = "unset";
+
+    html2canvas(tableWrap).then(function(canvas){
+        var myImage = canvas.toDataURL();
+        downloadURI(myImage, "table.png") 
+    });
+}
+
+
 function downloadURI(uri, name){
 	var link = document.createElement("a")
 	link.download = name;
@@ -348,8 +406,16 @@ function downloadURI(uri, name){
 	document.body.appendChild(link);
 	link.click();
 
+    var tableWrap = document.querySelector(".tableWrap");
     var graphContainer = document.querySelector(".graphContainer");
     graphContainer.style.width = "700px";
     graphContainer.style.height = "600px";
+    tableWrap.style.width = "520px";
+    tableWrap.style.height = "500px";
+    tableWrap.style.overflow = "scroll";
+
 
 }
+
+
+
