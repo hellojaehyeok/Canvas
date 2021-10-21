@@ -1,34 +1,100 @@
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
+
+.exportGraph{
+    width: 100px;
+    height: 50px;
+    line-height: 50px;
+    border: 1px solid #000;
+    cursor: pointer;
+}
+
+.visualWrap{
+    display: flex;
+}
+
+
+
+
+/* ------------------------------------ */
+/*                그래프                 */
+/* ------------------------------------ */
+.graphContainer{
+    width: 700px;
+    height: 600px;
+    position: relative;
+}
+.dotline{
+    width: 100%;
+    height: 1px;
+    border: 1px solid #000;
+    position: absolute;
+    pointer-events: none;
+    /* top: 100%; */
+    left: 0%;
+    /* transform: translateY(70px); */
+}
 .graphWrap{
-    width: 600px;
-    height: 440px;
+    position: relative;
+    width: 100%;
+    height: 100%;
     border: 1px solid #000;
     display: flex;
     overflow: scroll;
     overflow-y: hidden;
-    margin: 30px;
-    padding: 30px;
-    /* position: relative; */
+    padding: 70px 40px 40px;
+}
+
+.mother{
+    background-color: #FF9BBD;
+    overflow: hidden;
+    min-width: 16px;
+    max-width: 16px;
+    height: 440px;
+    margin: 0 8px;
+    border-radius: 8px;
+    transform-origin: 0;
+}
+.father{
+    background-color: #95CAFF;
+    overflow: hidden;
+    min-width: 16px;
+    max-width: 16px;
+    height: 440px;
+    margin: 0 8px;
+    border-radius: 8px;
+    transform-origin: 0;
 }
 .graphShadow{
     min-width: 16px;
+    max-width: 16px;
     height: 440px;
     margin: 0 8px;
     border-radius: 8px;
     box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgb(252, 252, 252) -3px -3px 6px 1px inset;
 }
+.graphElName{
+}
 .graphEl{
     overflow: hidden;
     min-width: 16px;
+    max-width: 16px;
     height: 440px;
     margin: 0 8px;
     border-radius: 8px;
-    border: 1px solid salmon;
     transform-origin: 0;
+    border: 1px solid salmon;
+}
+.graphName{
+    width: 37px;
+    font-size: 8px;
+    user-select:none;
+    pointer-events: none;
+    transform: translate(0, -15px) rotate(-45deg);
 }
 .chrStack{
     width: 100%;
@@ -37,15 +103,43 @@
     width: 100%;
 }
 
-.test{
-    position: absolute;
-    top: 0;
-    left: 0;
-    overflow: hidden;
-    min-width: 16px;
-    height: 440px;
-    margin: 0 8px;
-    border-radius: 8px;
+
+
+
+
+
+/* ------------------------------------ */
+/*                테이블                 */
+/* ------------------------------------ */
+.tableWrap{
+    width: 520px;
+    height: 500px;
     border: 1px solid salmon;
-    transform-origin: 0;
+    overflow: scroll;
+}
+.tableContent{
+    width: 1000px;
+}
+table{
+    width: 100%;
+    border: 1px solid #000;
+    border-collapse: collapse;
+}
+th{
+    width: 70px;   
+}
+tr{
+    background-color: #fff;
+    border-bottom: 1px solid #000;
+    height: 50px;
+}
+td{
+    border: 1px solid salmon;
+    width: 70px;   
+    height: 50px;
+    text-align: center;
+}
+.placeholder{
+    background-color: #7fc5ff;
+    border: 1px solid #7fc5ff;
 }

@@ -8,15 +8,30 @@
     <title>Document</title>
 </head>
 <body>
-    
-
     <input type="file" onchange="readExcel()">
+    <div class="exportGraph" onclick="downloadGraphImg()">Export Graph</div>
 
 
-    <div class="graphWrap"></div>
+    <div class="visualWrap">
+
+
+        <div class="tableWrap" >
+            <div class="tableContent">
+                <table id="table" class="table">
+                </table>
+            </div>
+        </div>
+
+        <div class="graphContainer">
+            <div class="dotline"></div>
+            <div class="graphWrap">
+            </div>
+        </div>
+    </div>
 
 
 
+    <script src="./js/html2canvas.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.5/xlsx.full.min.js"></script>
     <script src="./js/script.js"></script>
 </body>
