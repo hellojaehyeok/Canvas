@@ -24,6 +24,25 @@ var stack = d3.stack()
 
 var dataArr = [
     "count1",
+    "count2",
+    "count3",
+    "count4",
+    "count5",
+    "count6",
+    "count7",
+    "count8",
+    "count9",
+    "count10",
+    "count11",
+    "count22",
+    "count33",
+    "count44",
+    "count55",
+    "count66",
+    "count77",
+    "count88",
+    "count99",
+    "count110",
 ];
 
 
@@ -64,20 +83,20 @@ d3.json("data.json", function(error, data) {
 
 
     // 좌측
-    // var legend = serie.append("g")
-    //     .attr("class", "legend")
-    //     .attr("transform", function(d) { var d = d[d.length - 1]; return "translate(" + (x(d.data.name) + x.bandwidth()) + "," + ((y(d[0]) + y(d[1])) / 2) + ")"; });
+    var legend = serie.append("g")
+        .attr("class", "legend")
+        .attr("transform", function(d) { var d = d[d.length - 1]; return "translate(" + (x(d.data.name) + x.bandwidth()) + "," + ((y(d[0]) + y(d[1])) / 2) + ")"; });
 
-    // legend.append("line")
-    //     .attr("x1", -6)
-    //     .attr("x2", 6)
-    //     .attr("stroke", "#000");
+    legend.append("line")
+        .attr("x1", -6)
+        .attr("x2", 6)
+        .attr("stroke", "#000");
 
-    // legend.append("text")
-    //     .attr("x", 9)
-    //     .attr("dy", "0.35em")
-    //     .attr("fill", "#000")
-    //     .style("font", "10px sans-serif")
-    //     .text(function(d) { return d.key; });
+    legend.append("text")
+        .attr("x", 9)
+        .attr("dy", "0.35em")
+        .attr("fill", "#000")
+        .style("font", "10px sans-serif")
+        .text(function(d) { return d.key; });
 
 });

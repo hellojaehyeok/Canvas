@@ -2,7 +2,7 @@
 // ------------------------------------------------------
 //                         그래프
 // ------------------------------------------------------
-var xlsxData = [];
+var xlsxData = {};
 var graphWrap = document.querySelector(".graphWrap");
 var chartDataArr = {};
 var chrTotalData = {};
@@ -11,7 +11,6 @@ var chrPercent = {};
 var clickX = 0;
 var clickY = 0;
 var isFirst = true;
-
 
 // # . 1 엑셀 data 가져오기
 function readExcel() {
@@ -36,17 +35,18 @@ function parsingData(xlsxData){
             if(key == "f" || key == "m" || key == "__EMPTY" || key == "pos" || key == "chr"){continue;}
             chartDataArr[key] = chartDataArr[key] ? chartDataArr[key] : [];
             chrPercent[key] = {};
-            chartDataArr[key].push({ tpye : xlsxData[i][key], pos : xlsxData[i]["pos"], chr : xlsxData[i]["chr"]});
+            chartDataArr[key].push({ type : xlsxData[i][key], pos : xlsxData[i]["pos"], chr : xlsxData[i]["chr"], name: xlsxData[i]["__EMPTY"]});
         }
 
         chrTotalData[xlsxData[i]["chr"]] = xlsxData[i]["pos"];
+
     }
 
     for(var key in chrTotalData){
         if(typeof(chrTotalData[key]) !== "number"){continue;}
         chrTotalIndex += chrTotalData[key];
     }
-
+    // drawModalGraph();
     buildGraph();
 } 
 
@@ -113,7 +113,7 @@ function buildGraph(){
             var divElSmallStack = document.createElement('div');
             divElSmallStack.setAttribute("data-pos", chartDataArr[key][i]["pos"]);
             divElSmallStack.setAttribute("data-chr", chartDataArr[key][i]["chr"]);
-            divElSmallStack.setAttribute("data-tpye", chartDataArr[key][i]["tpye"]);
+            divElSmallStack.setAttribute("data-type", chartDataArr[key][i]["type"]);
             divElSmallStack.classList.add("chrStackSmall");
 
 
@@ -137,10 +137,10 @@ function buildGraph(){
             divElSmallStack.style.height = (  100/chrTotalData[currentChr]  ) * gap + "%";
             
             // 배경색
-            if(chartDataArr[key][i]["tpye"] == "A"){
+            if(chartDataArr[key][i]["type"] == "A"){
                 chrPercent[key][currentChr] += (100/chrTotalData[chartDataArr[key][i]["chr"]]) * gap;
                 divElSmallStack.style.backgroundColor= "#FF9BBD"
-            }else if(chartDataArr[key][i]["tpye"] == "B"){
+            }else if(chartDataArr[key][i]["type"] == "B"){
                 divElSmallStack.style.backgroundColor= "#95CAFF"
             }else{
                 divElSmallStack.style.backgroundColor= "#FFE395"
@@ -168,12 +168,13 @@ function buildGraph(){
     buildTable();
 }
 
-// 드래그&드롭 이벤트 추가
+// 드래그&드롭, 더블클릭 이벤트 추가
 function addGraphEvent(){
     // 드래그&드롭 인터랙션
     var isMouseMove = false;
     var clickColumn = "";
     graphWrap.addEventListener("mousedown", function(e){
+        console.log("mousedown == ")
         if(e.path[0].classList.contains("chrStackSmall")){
             isMouseMove = true;
             clickColumn = e.path[2].dataset.column;
@@ -223,6 +224,15 @@ function addGraphEvent(){
         clickEl.parentNode.replaceChild(clickEl, currentShadow);
         sortGraphData();
     });
+
+    graphWrap.addEventListener("dblclick", function(e){
+        if(e.path[0].classList.contains("chrStackSmall")){
+            var modal = document.querySelector(".modal");
+            modal.style.display = "unset";
+            drawModalGraph(e.path[2].dataset.column);
+        }
+    });
+
 }
 
 // 그래프 정렬
@@ -397,8 +407,19 @@ function downloadTableImg(e){
         downloadURI(myImage, "table.png") 
     });
 }
+function downloadModalImg(){
+    var modalGraph_Wrap = document.querySelector(".modalGraph_Wrap");
+    var modalGraph_scale = document.querySelector(".modalGraph_scale");
+    modalGraph_Wrap.style.overflow = "unset";
+    modalGraph_Wrap.style.width = "unset";
+    modalGraph_scale.style.transform = "scale(1)"
 
-
+    html2canvas(modalGraph_Wrap).then(function(canvas){
+        var myImage = canvas.toDataURL();
+        downloadURI(myImage, "plz.png") 
+    });
+    
+}
 function downloadURI(uri, name){
 	var link = document.createElement("a")
 	link.download = name;
@@ -408,6 +429,11 @@ function downloadURI(uri, name){
 
     var tableWrap = document.querySelector(".tableWrap");
     var graphContainer = document.querySelector(".graphContainer");
+    var modalGraph_Wrap = document.querySelector(".modalGraph_Wrap");
+
+    modalGraph_Wrap.style.overflow = "scroll";
+    modalGraph_Wrap.style.width = "90%";
+
     graphContainer.style.width = "700px";
     graphContainer.style.height = "600px";
     tableWrap.style.width = "520px";
@@ -419,3 +445,178 @@ function downloadURI(uri, name){
 
 
 
+// ------------------------------------------------------
+//                         초기화
+// ------------------------------------------------------
+function onClickInit(){
+    document.querySelector(".addMabcFile").value = "";
+    var visualWrap = document.querySelector(".visualWrap");
+    var visualWrapPosition = document.querySelector(".visualWrapPosition");
+    visualWrap.remove();
+    visualWrapPosition.innerHTML = "<div class='visualWrap'><div class='tableWrap' ><div class='tableContent'><table id='table' class='table'></table></div></div><div class='graphContainer'><div class='dotline'></div><div class='graphWrap'></div></div></div>"
+    
+    xlsxData = {};
+    chartDataArr = {};
+    chrTotalData = {};
+    chrTotalIndex = 0; 
+    chrPercent = {};
+    clickX = 0;
+    clickY = 0;
+    isFirst = true;
+
+    clickTableColumn = "";
+    hoverTableColumn = "";
+    isTable = false;
+}
+
+
+
+
+// ------------------------------------------------------
+//                         모달
+// ------------------------------------------------------
+function drawModalGraph(_graphName){
+
+    // 데이터 변환 작업
+    var graphName = chartDataArr[_graphName];
+    var modalGraph_scale = document.querySelector(".modalGraph_scale");
+    modalGraph_scale.innerHTML = "";
+    let modalGraphData = {};
+    for(var i = 0 ; i < graphName.length ; i++){
+        modalGraphData[graphName[i].chr] = modalGraphData[graphName[i].chr]?modalGraphData[graphName[i].chr]:[];
+        modalGraphData[graphName[i].chr].push({
+            pos:graphName[i].pos,
+            name:graphName[i].name,
+            type:graphName[i].type,
+            chr:graphName[i].chr
+        })
+    }
+    
+    // 그래프 그리기 
+    for(var key in modalGraphData){
+        var modalGraphSection = document.createElement('div');
+        modalGraphSection.classList.add("modalGraphSection");
+
+        var modalGraph = document.createElement('div');
+        modalGraph.classList.add("modalGraphEl");
+        
+        var modalGraphElWrap = document.createElement('div');
+        modalGraphElWrap.classList.add("modalGraphElWrap");
+        
+        var modalGraphName = document.createElement('div');
+        modalGraphName.classList.add("modalGraphName");
+        modalGraphName.innerText = key;
+
+        for(var i = 0 ; i <  modalGraphData[key].length; i++){
+            // 스택
+            var modalGraphStack = document.createElement('div');
+            modalGraphStack.classList.add("modalGraphElStack");
+            modalGraphStack.setAttribute("data-column", key+"_modal");
+
+            // 스택 이름
+            var modalStackDesc = document.createElement('div');
+            modalStackDesc.classList.add("modalStackDesc");
+            modalStackDesc.setAttribute("data-column", key+"_modalDesc");
+            modalStackDesc.innerHTML = modalGraphData[key][i]["name"];
+
+            // 스택 이름
+            var modalStackDescLine = document.createElement('div');
+            modalStackDescLine.classList.add("modalStackDescLine");
+            modalStackDescLine.setAttribute("data-column", key+"_modalDescLine");
+
+            // 높이값
+            var gap = 0;
+            if(i==0){
+                gap = modalGraphData[key][i]["pos"];
+            }else{
+                gap = modalGraphData[key][i]["pos"] - modalGraphData[key][i-1]["pos"];
+            }
+        
+            modalGraphStack.style.height = (  100/chrTotalData[key]  ) * gap + "%";
+            
+            // // 배경색
+            if(modalGraphData[key][i]["type"] == "A"){
+                modalGraphStack.style.backgroundColor= "#FF9BBD"
+            }else if(modalGraphData[key][i]["type"] == "B"){
+                modalGraphStack.style.backgroundColor= "#95CAFF"
+            }else{
+                modalGraphStack.style.backgroundColor= "#FFE395"
+            }
+
+            modalGraph.appendChild( modalStackDesc );
+            modalGraph.appendChild( modalStackDescLine );
+            modalGraph.appendChild( modalGraphStack );
+        }
+
+        modalGraphSection.appendChild(modalGraphName);
+        modalGraphSection.appendChild(modalGraph);
+        modalGraph_scale.appendChild( modalGraphSection );
+
+        var stacEls = modalGraph.querySelectorAll("[data-column=" +key+"_modal"+ "]");
+        var stackDescEls = modalGraph.querySelectorAll("[data-column=" +key+"_modalDesc"+ "]");
+        var stackDescLineEls = modalGraph.querySelectorAll("[data-column=" +key+"_modalDescLine"+ "]");
+        var marinLeft = 0;
+        
+        for(var i = 0 ; i < stackDescEls.length ; i++){
+            // 탑
+            stackDescEls[i].style.top = stacEls[i].offsetTop + (stacEls[i].clientHeight/2) + "px";
+            stackDescLineEls[i].style.top = stacEls[i].offsetTop + (stacEls[i].clientHeight/2) + "px"
+
+            // 높이값 조장
+            if(i !== 0){
+                var offsetBottom = stackDescEls[i-1].offsetTop + stackDescEls[i-1].offsetHeight;
+                if(offsetBottom > stackDescEls[i].offsetTop){
+                    stackDescEls[i].style.top = offsetBottom + "px";
+                }
+            }
+
+            // 마진
+            if(marinLeft < stackDescEls[i].clientWidth){
+                marinLeft = stackDescEls[i].clientWidth;
+            }
+
+            var lineX = stackDescLineEls[i].offsetLeft; 
+            var lineY = stackDescLineEls[i].offsetTop; 
+
+            var descX = stackDescEls[i].offsetLeft;
+            var descY = stackDescEls[i].offsetTop + (stackDescEls[i].clientHeight/2);
+            
+            var x = descX - lineX;
+            var y = descY - lineY;
+            var radian = Math.atan2(y, x);
+            var degree = radian * 180 / Math.PI // 라디안 -> 디그리 변환
+
+            stackDescLineEls[i].style.transform = "rotate(" + degree + "deg)";
+            stackDescLineEls[i].style.width = 
+            Math.sqrt(
+                Math.pow((descY - lineY), 2) + Math.pow((Math.abs(descX - lineX)), 2)
+            ) - 4 + "px";
+
+        }
+        modalGraph.style.marginRight = marinLeft + 60 + "px";
+    }
+
+    var mabcModalSelect = document.querySelector(".mabcModalSelect");
+    for(var key in chartDataArr){
+        var selectOption = document.createElement('option');
+        selectOption.innerText = key;
+        mabcModalSelect.appendChild(selectOption);
+    }
+
+}
+function closeMOdal(){
+    var modal = document.querySelector(".modal");
+    modal.style.display = "none";
+}
+function onChangeModalSelect(){
+    var mabcModalSelect = document.querySelector(".mabcModalSelect");  
+  
+
+    drawModalGraph(mabcModalSelect.options[mabcModalSelect.selectedIndex].innerText)
+}
+function onClickZoom(isZoomIn){
+    var modalGraph_scale = document.querySelector(".modalGraph_scale");
+    var style = window.getComputedStyle(modalGraph_scale);
+    var matrix = new WebKitCSSMatrix(style.transform);
+    modalGraph_scale.style.transform = "scale(" + (matrix.m11 + (isZoomIn?0.3:-0.3)) + ")"
+}

@@ -8,7 +8,8 @@
     <title>Document</title>
 </head>
 <body>
-    <input type="file" onchange="readExcel()">
+    <input type="file" class="addMabcFile" onchange="readExcel()">
+    <div class="exportGraph" onclick="onClickInit()">Init</div>
     <div class="exportGraph" onclick="downloadTableImg()">Export Table</div>
     <div class="exportGraph" onclick="downloadGraphImg()">Export Graph</div>
 
@@ -27,6 +28,36 @@
                 <div class="graphWrap">
                 </div>
             </div>
+        </div>
+    </div>
+
+
+    
+    <div class="modal">
+        <div class="modalBg" onclick="closeMOdal()"></div>
+        <div class="modalContent">
+
+            <select class="mabcModalSelect" onchange="onChangeModalSelect()">
+                <option disabled>개체선택</option>
+            </select>
+            <button class="modalZoomBtn" onclick="downloadModalImg()">캡쳐</button>
+
+
+            <div class="modalGraph_Container">
+                
+                <button class="modalZoomBtn" onclick="onClickZoom(true)">확대</button>
+                <button class="modalZoomBtn" onclick="onClickZoom(false)">축소</button>
+                <div class="modalGraph_Wrap">
+                    <div class="modalGraph_scale"></div>
+                </div>
+
+
+            </div>
+
+
+
+
+
         </div>
     </div>
 
