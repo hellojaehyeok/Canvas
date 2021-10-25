@@ -27,13 +27,16 @@
 }
 .dotline{
     width: 100%;
-    height: 1px;
-    border-top: 1px dotted #000;
+    border-bottom: 1px dotted #000;
     position: absolute;
     pointer-events: none;
-    /* top: 100%; */
     left: 0%;
-    /* transform: translateY(70px); */
+}
+.dotline:last-child{
+    border: 0;
+}
+.dotline::after{
+    width: 30px;
 }
 .graphWrap{
     position: relative;
@@ -76,6 +79,12 @@
 }
 .graphElName{
 }
+.graphChrEl{
+    height: 440px;
+    margin: 0 8px;
+    border-radius: 8px;
+    transform-origin: 0;
+}
 .graphEl{
     overflow: hidden;
     min-width: 16px;
@@ -86,14 +95,20 @@
     transform-origin: 0;
 }
 .graphName{
-    width: 37px;
+    min-width: 37px;
     font-size: 8px;
     user-select:none;
     pointer-events: none;
     transform: translate(0, -15px) rotate(-45deg);
+    height: 13px;
 }
 .chrStack{
     width: 100%;
+}
+.chrStackName{
+    display: flex;
+    align-items: center;
+    font-size: 12px;
 }
 .chrStackSmall{
     width: 100%;
@@ -122,15 +137,12 @@
 }
 table{
     width: 100%;
-    border: 1px solid #000;
-    border-collapse: collapse;
 }
 th{
     width: 70px;   
 }
 tr{
     background-color: #fff;
-    border-bottom: 1px solid #000;
     height: 50px;
 }
 td{

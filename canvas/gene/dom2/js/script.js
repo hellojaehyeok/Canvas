@@ -31,14 +31,21 @@ function readExcel() {
 // # . 2 data 원하는 형태로 변환
 function parsingData(xlsxData){
     for(var i = 0 ; i <  xlsxData.length ; i++){
+
         for(var key in xlsxData[i]){
+            if(typeof(xlsxData[i].pos)!=="number"){
+                continue;
+            }
+
             if(key == "f" || key == "m" || key == "__EMPTY" || key == "pos" || key == "chr"){continue;}
             chartDataArr[key] = chartDataArr[key] ? chartDataArr[key] : [];
             chrPercent[key] = {};
             chartDataArr[key].push({ type : xlsxData[i][key], pos : xlsxData[i]["pos"], chr : xlsxData[i]["chr"], name: xlsxData[i]["__EMPTY"]});
         }
 
-        chrTotalData[xlsxData[i]["chr"]] = xlsxData[i]["pos"];
+        if(typeof(xlsxData[i].pos)=="number"){
+            chrTotalData[xlsxData[i]["chr"]] = xlsxData[i]["pos"];
+        }
 
     }
 
@@ -52,17 +59,18 @@ function parsingData(xlsxData){
 
 // # . 3 그래프 생성
 function buildGraph(){
+    // 초기화
     var visualWrap = document.querySelector(".visualWrap");
     var visualWrapPosition = document.querySelector(".visualWrapPosition");
     visualWrap.remove();
     visualWrapPosition.innerHTML = "<div class='visualWrap'><div class='tableWrap' ><div class='tableContent'><table id='table' class='table'></table></div></div><div class='graphContainer'><div class='dotline'></div><div class='graphWrap'></div></div></div>"
 
-    
     graphWrap = document.querySelector(".graphWrap");
     for(var key in chrPercent){
         chrPercent[key] = {}
     }
 
+    // 부모 생성
     function makeParent(className){
         var graphElName = document.createElement('div');
         graphElName.classList.add("graphElName");
@@ -77,11 +85,34 @@ function buildGraph(){
         graphElName.appendChild( divEl ); 
         graphWrap.appendChild( graphElName ); 
     }
-    makeParent("mother");
-    makeParent("father");
 
+
+    var count = 0;
     // 클 틀 생성
     for(var key in chartDataArr){
+        if(count == 0){
+            var chrNameBar = document.createElement('div');
+            var chrNameDefault = document.createElement('div');
+            chrNameDefault.classList.add("graphName");
+            chrNameBar.appendChild( chrNameDefault ); 
+            
+            for(var keyChr in chrTotalData){
+                if(typeof(chrTotalData[keyChr])=="number"){
+                    chrNameBar.classList.add("graphChrEl");
+                    var chrName = document.createElement('div');
+                    chrName.innerText = keyChr;
+                    chrName.classList.add("chrStackName");
+                    chrName.style.height = (100/chrTotalIndex) * chrTotalData[keyChr] + "%";
+                    chrNameBar.appendChild( chrName ); 
+                }
+            }
+            
+            graphWrap.appendChild( chrNameBar ); 
+            makeParent("mother");
+            makeParent("father");
+            count++;
+        }
+
         var graphElName = document.createElement('div');
         graphElName.classList.add("graphElName");
 
@@ -149,19 +180,21 @@ function buildGraph(){
         }
     }    
     
+    // 점선 추가
     var graphContainer = document.querySelector(".graphContainer");
     for(var key in chrTotalData){
         if(typeof(chrTotalData[key])=="number"){
-
-            var chtHeight = document.querySelector("[data-column="+key+"]").getBoundingClientRect().bottom;
             var dotEl = document.createElement('div');
+            var currentChr = document.querySelector("[data-column="+key+"]");
+            var chtHeight = currentChr.getBoundingClientRect().bottom;
+
             dotEl.classList.add("dotline");
-            dotEl.style.top =  (chtHeight - graphContainer.getBoundingClientRect().top) + "px";
+            dotEl.style.top = (chtHeight - graphContainer.getBoundingClientRect().top) + "px";
+            dotEl.style.height = currentChr.offsetHeight + "px";
+            dotEl.style.transform = "translateY(-"+ currentChr.offsetHeight +"px)";
             graphContainer.appendChild( dotEl );
         }
     }
-    var dotline = document.querySelectorAll(".dotline");
-    dotline[dotline.length-1].remove();
 
 
     addGraphEvent();
@@ -174,7 +207,6 @@ function addGraphEvent(){
     var isMouseMove = false;
     var clickColumn = "";
     graphWrap.addEventListener("mousedown", function(e){
-        console.log("mousedown == ")
         if(e.path[0].classList.contains("chrStackSmall")){
             isMouseMove = true;
             clickColumn = e.path[2].dataset.column;
@@ -369,11 +401,13 @@ function addTableEvent(){
     tableWrap.addEventListener("mouseup", function(e){
         if(!isMouseMove){return}
         isMouseMove = false;
-        var currentShadow = document.querySelector(".tableShadow");
-        if(!currentShadow){return}
+        
         var clickEl = document.querySelector("[data-column=" + clickTableColumn + "]");
         clickEl.style.opacity = "1";
         clickEl.style.border = "0";
+
+        var currentShadow = document.querySelector(".tableShadow");
+        if(!currentShadow){return}
         clickEl.parentNode.replaceChild(clickEl, currentShadow);
         sortTableData();
     })
