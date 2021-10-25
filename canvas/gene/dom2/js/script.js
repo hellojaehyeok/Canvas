@@ -96,6 +96,7 @@ function buildGraph(){
 
     // 클 틀 생성
     for(var key in chartDataArr){
+        // 좌측 컬럼 이름, 엄마 아빠 
         if(count == 0){
             var chrNameBar = document.createElement('div');
             var chrNameDefault = document.createElement('div');
@@ -462,9 +463,15 @@ function downloadTableImg(e){
 function downloadModalImg(){
     var modalGraph_Wrap = document.querySelector(".modalGraph_Wrap");
     var modalGraph_scale = document.querySelector(".modalGraph_scale");
+    var modalGraphEl = document.querySelectorAll(".modalGraphEl");
     modalGraph_Wrap.style.overflow = "unset";
     modalGraph_Wrap.style.width = "unset";
-    modalGraph_scale.style.transform = "scale(1)"
+    modalGraph_Wrap.style.height = "unset";
+    modalGraph_scale.style.transform = "scale(1)";
+
+    for(var i = 0 ; i < modalGraphEl.length ; i++){
+        modalGraphEl[i].style.overflow = "unset";
+    }
 
     html2canvas(modalGraph_Wrap).then(function(canvas){
         var myImage = canvas.toDataURL();
@@ -482,6 +489,7 @@ function downloadURI(uri, name){
     var tableWrap = document.querySelector(".tableWrap");
     var graphContainer = document.querySelector(".graphContainer");
     var modalGraph_Wrap = document.querySelector(".modalGraph_Wrap");
+    var modalGraphEl = document.querySelectorAll(".modalGraphEl");
 
     modalGraph_Wrap.style.overflow = "scroll";
     modalGraph_Wrap.style.width = "90%";
@@ -492,6 +500,9 @@ function downloadURI(uri, name){
     tableWrap.style.height = "500px";
     tableWrap.style.overflow = "scroll";
 
+    for(var i = 0 ; i < modalGraphEl.length ; i++){
+        modalGraphEl[i].style.overflow = "hidden";
+    }
 
 }
 
