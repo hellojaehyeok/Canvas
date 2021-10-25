@@ -48,12 +48,17 @@ function parsingData(xlsxData){
         }
 
     }
-
+    var chrSelectBox = document.querySelector(".chrSelectBox");
     for(var key in chrTotalData){
         if(typeof(chrTotalData[key]) !== "number"){continue;}
         chrTotalIndex += chrTotalData[key];
+
+        var chrSelectOption = document.createElement("option");
+        chrSelectOption.innerText = key;
+        chrSelectOption.classList.add("chrOption");
+        chrSelectBox.appendChild(chrSelectOption);
     }
-    // drawModalGraph();
+
     buildGraph();
 } 
 
@@ -88,6 +93,7 @@ function buildGraph(){
 
 
     var count = 0;
+
     // 클 틀 생성
     for(var key in chartDataArr){
         if(count == 0){
@@ -162,11 +168,12 @@ function buildGraph(){
 
             var currentChr = chartDataArr[key][i]["chr"];
             var divElSmall = divEl.querySelector("[data-column=" +currentChr+ "]");
-        
+            
             chrPercent[key][currentChr] = chrPercent[key][currentChr] ? chrPercent[key][currentChr] : 0;
 
             divElSmallStack.style.height = (  100/chrTotalData[currentChr]  ) * gap + "%";
-            
+
+
             // 배경색
             if(chartDataArr[key][i]["type"] == "A"){
                 chrPercent[key][currentChr] += (100/chrTotalData[chartDataArr[key][i]["chr"]]) * gap;
@@ -196,6 +203,16 @@ function buildGraph(){
         }
     }
 
+    var newChrPercent = chrPercent; 
+    for(var key in chrPercent){
+        var totalA = 0;
+        for(var keySmall in chrPercent[key]){
+            totalA += (chrPercent[key][keySmall] * chrTotalData[keySmall])/100;
+        }
+        newChrPercent[key]["total"] = totalA / chrTotalIndex * 100
+    }
+
+    chrPercent = newChrPercent;
 
     addGraphEvent();
     buildTable();
@@ -312,10 +329,11 @@ function buildTable(){
         theadTh.innerText = key;
         theadTr.appendChild(theadTh);
     }
-    thead.appendChild(theadTr);
-    
-    
+    var theadThTotla = document.createElement('th');
+    theadThTotla.innerText = "Total";
+    theadTr.appendChild(theadThTotla);
 
+    thead.appendChild(theadTr);
 
     // 몸통
     var tbody = document.createElement('tbody');
@@ -489,6 +507,12 @@ function onClickInit(){
     visualWrap.remove();
     visualWrapPosition.innerHTML = "<div class='visualWrap'><div class='tableWrap' ><div class='tableContent'><table id='table' class='table'></table></div></div><div class='graphContainer'><div class='dotline'></div><div class='graphWrap'></div></div></div>"
     
+    var chrOptionBox = document.querySelectorAll(".chrOption");
+    for(var i = 0 ; i < chrOptionBox.length; i++){
+        console.log(chrOptionBox[i]);
+        chrOptionBox[i].remove();
+    }
+
     xlsxData = {};
     chartDataArr = {};
     chrTotalData = {};
@@ -653,4 +677,78 @@ function onClickZoom(isZoomIn){
     var style = window.getComputedStyle(modalGraph_scale);
     var matrix = new WebKitCSSMatrix(style.transform);
     modalGraph_scale.style.transform = "scale(" + (matrix.m11 + (isZoomIn?0.3:-0.3)) + ")"
+}
+
+
+
+
+
+
+// ------------------------------------------------------
+//                         정렬
+// ------------------------------------------------------
+function onChangeChrSort(){
+    var chrSelectBox = document.querySelector(".chrSelectBox");  
+    var selectText = chrSelectBox.options[chrSelectBox.selectedIndex].innerText;
+    var sortData = [];
+    for(var key in chrPercent){
+        sortData.push({name:key, percent: chrPercent[key][selectText]});
+    };
+
+    sortData.sort(function(a, b){
+        return b.percent - a.percent;
+    });
+
+    var newChartDataArr = {}
+
+    for(var i = 0 ; i < sortData.length ; i++){
+        newChartDataArr[sortData[i].name] = chartDataArr[sortData[i].name];
+    }
+
+    chartDataArr = newChartDataArr;
+    var allChrBtn = document.querySelector(".allChrBtn");
+    if(allChrBtn.classList.contains("activeAllChr")){
+        onClickAllChr(false)
+    }else{
+        buildGraph();
+    }
+}
+function onClickAllChr(isClick){
+    if(isClick){
+        var allChrBtn = document.querySelector(".allChrBtn");
+        if(allChrBtn.classList.contains("activeAllChr")){
+            allChrBtn.classList.remove("activeAllChr");
+        }else{
+            allChrBtn.classList.add("activeAllChr");
+        }
+    }
+
+
+    var chrSelectBox = document.querySelector(".chrSelectBox");  
+    var selectText = chrSelectBox.options[chrSelectBox.selectedIndex];
+    if(!selectText){return;}
+    selectText = selectText.innerText;
+
+    var sortData = [];
+    
+    for(var key in chrPercent){
+        sortData.push({name:key, percent: chrPercent[key][selectText], totalPercent : chrPercent[key]["total"]});
+    };
+
+    sortData.sort(function(a, b){
+        if(b.percent < a.percent) return -1; 
+        if(b.percent > a.percent) return 1;
+        if(b.totalPercent < a.totalPercent) return -1;
+        if(b.totalPercent > a.totalPercent) return 1;
+        return 0;        
+    });
+
+    var newChartDataArr = {}
+
+    for(var i = 0 ; i < sortData.length ; i++){
+        newChartDataArr[sortData[i].name] = chartDataArr[sortData[i].name];
+    }
+
+    chartDataArr = newChartDataArr;
+    buildGraph();
 }
